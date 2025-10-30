@@ -1,0 +1,136 @@
+Job Application Tracker (Backend with HTML Output)
+
+ File: server.js
+
+// server.js
+// Run: npm init -y && npm install express
+// Then: node server.js
+// Open: http://localhost:3000
+
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse form data
+app.use(express.urlencoded({ extended: true }));
+
+// In-memory database (stores data temporarily)
+let jobApplications = [];
+
+// Home Page (HTML output)
+app.get('/', (req, res) => {
+  let html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Naan Muthalvan - Job Application Tracker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f4f8;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        color: #2a5298;
+      }
+      form {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        width: 400px;
+        margin: 20px auto;
+      }
+      input, textarea, button {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      button {
+        background: #2a5298;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #1e3a72;
+      }
+      table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #eaf1fb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧾 Job Application Tracker</h1>
+    <form action="/add" method="POST">
+      <label>Job Title:</label>
+      <input type="text" name="title" required>
+      
+      <label>Company Name:</label>
+      <input type="text" name="company" required>
+      
+      <label>Status:</label>
+      <input type="text" name="status" placeholder="Applied / Interview / Hired" required>
+      
+      <label>Notes:</label>
+      <textarea name="notes" placeholder="Additional details"></textarea>
+      
+      <button type="submit">Add Application</button>
+    </form>
+
+    <h2 style="text-align:center;">All Applications</h2>
+    <table>
+      <tr>
+        <th>Job Title</th>
+        <th>Company</th>
+        <th>Status</th>
+        <th>Notes</th>
+      </tr>`;
+
+  if (jobApplications.length === 0) {
+    html += `<tr><td colspan="4" style="text-align:center;">No Applications Yet</td></tr>`;
+  } else {
+    for (let job of jobApplications) {
+      html += `
+        <tr>
+          <td>${job.title}</td>
+          <td>${job.company}</td>
+          <td>${job.status}</td>
+          <td>${job.notes}</td>
+        </tr>`;
+    }
+  }
+
+  html += `
+    </table>
+  </body>
+  </html>`;
+
+  res.send(html);
+});
+
+// Add job (POST)
+app.post('/add', (req, res) => {
+  const { title, company, status, notes } = req.body;
+  jobApplications.push({ title, company, status, notes });
+  res.redirect('/');
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`🚀 Server running at http://localhost:${port}`);
+});
